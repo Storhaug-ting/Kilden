@@ -91,11 +91,13 @@ jobs:
       # Pester throws when it finds no test file at all, so an empty 'tests' is
       # already red. A suite that holds no test is not: Pester returns Passed
       # with a total of nothing, and the run is green having proved nothing -
-      # the same vacuous pass this whole check exists to catch. Treat zero tests
-      # the way the link check treats zero links.
+      # the same vacuous pass this check exists to catch. The guard also fails
+      # when no count arrives, because the count is an output of the pinned
+      # action above and a bump that renamed it must not read as a pass. It is
+      # passed through the environment rather than expanded into the command,
+      # so a value can never become code.
       - name: Fail when the run proved nothing
-        if: steps.pester.outputs.TotalCount == '0'
         shell: pwsh
-        run: |
-          Write-Output '::error title=Tests::The suites ran but held no test - the run proved nothing.'
-          exit 1
+        env:
+          TOTAL_COUNT: ${{ steps.pester.outputs.TotalCount }}
+        run: ./scripts/Assert-TestCount.ps1 -TotalCount $env:TOTAL_COUNT
