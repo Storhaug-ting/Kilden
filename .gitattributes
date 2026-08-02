@@ -1,0 +1,7 @@
+# Eksterne kilder lagres med LF slik at regenerert markdown kan sammenlignes
+# byte for byte mot den innsjekkede versjonen, uavhengig av operativsystem.
+*.md   text eol=lf
+*.json text eol=lf
+*.py   text eol=lf
+*.ps1  text eol=lf
+*.pdf  binary
