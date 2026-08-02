@@ -4,9 +4,9 @@
     Henter en ekstern kilde på nytt, kontrollerer den og regenererer markdown.
 
 .DESCRIPTION
-    Hver kilde i dette repoet er beskrevet i en `kilde.psd1` med hvor
-    originalen ligger på nett, hvilken sjekksum den skal ha, og hvilke regler
-    som gjelder for konvertering til markdown.
+    Hver kilde ligger i en egen mappe under `docs/` og er beskrevet i en
+    `kilde.psd1` med hvor originalen ligger på nett, hvilken sjekksum den skal
+    ha, og hvilke regler som gjelder for konvertering til markdown.
 
     Skriptet gjør fire ting:
 
@@ -23,7 +23,7 @@
     utgave fra nett (oppdaterer original, sjekksum og hentet-dato).
 
 .PARAMETER Navn
-    Mappenavnet til kilden. Utelates det, behandles alle kilder.
+    Mappenavnet til kilden under `docs/`. Utelates det, behandles alle kilder.
 
 .PARAMETER Skriv
     Skriv den genererte markdown-filen til repoet.
@@ -58,7 +58,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$sourcesRoot = Split-Path $PSScriptRoot -Parent
+$sourcesRoot = Join-Path (Split-Path $PSScriptRoot -Parent) 'docs'
 $converter = Join-Path $PSScriptRoot 'Convert-PdfToMarkdown.py'
 
 function Get-Python {
@@ -206,9 +206,7 @@ function Update-Source {
 $directories = if ($Navn) {
     @(Get-Item -LiteralPath (Join-Path $sourcesRoot $Navn))
 } else {
-    Get-ChildItem -LiteralPath $sourcesRoot -Directory |
-        Where-Object { $_.Name -ne 'scripts' -and -not $_.Name.StartsWith('.') } |
-        Sort-Object Name
+    Get-ChildItem -LiteralPath $sourcesRoot -Directory | Sort-Object Name
 }
 
 $results = foreach ($directory in $directories) { Update-Source -Directory $directory }
