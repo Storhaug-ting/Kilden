@@ -64,8 +64,6 @@ jobs:
         run: pwsh -NoProfile -File 'scripts/Test-MarkdownLink.ps1'
 
   # Its own job, so the name of the red check says which of the three failed.
-  # The suites are discovered from disk, so a new tests/*.Tests.ps1 file is
-  # gated the moment it lands, without touching this workflow.
   tests:
     name: The link check can still fail
     runs-on: ubuntu-24.04
@@ -77,9 +75,27 @@ jobs:
         with:
           persist-credentials: false
 
-      # The script pins Pester to an exact version, and exits non-zero when it
-      # discovers no suite at all - a test job that runs nothing is green and
-      # worthless.
+      # Pester is pinned to an exact version, because a workflow is an end
+      # artifact rather than a library: a new release must not turn an untouched
+      # pull request red. Keep it inside the range the suites' '#Requires' lines
+      # declare. The GUID is Pester's own, so a different module of the same
+      # name on the runner cannot satisfy the pin.
       - name: Run the Pester suites
+        id: pester
+        uses: PSModule/Invoke-Pester@4ff33199141fdf22568990b6107fe3148ae93a1c # v5.1.0
+        with:
+          Path: ./tests
+          Version: 6.0.1
+          Guid: a699dea5-2c73-4616-a270-1f7abb777e71
+
+      # Pester throws when it finds no test file at all, so an empty 'tests' is
+      # already red. A suite that holds no test is not: Pester returns Passed
+      # with a total of nothing, and the run is green having proved nothing -
+      # the same vacuous pass this whole check exists to catch. Treat zero tests
+      # the way the link check treats zero links.
+      - name: Fail when the run proved nothing
+        if: steps.pester.outputs.TotalCount == '0'
         shell: pwsh
-        run: pwsh -NoProfile -File 'scripts/Invoke-PesterSuite.ps1'
+        run: |
+          Write-Output '::error title=Tests::The suites ran but held no test - the run proved nothing.'
+          exit 1

@@ -67,16 +67,17 @@ are documented in `DEFAULT_PROFILE` at the top of
 ./scripts/Test-MarkdownLink.ps1
 
 # Run the tests that hold the link check to what it claims
-./scripts/Invoke-PesterSuite.ps1
+Invoke-Pester -Path ./tests
 ```
 
 The script exits with an error if a local copy does not match its recorded checksum, or if
 the markdown is not identical to what the conversion produces. The same checks run on every
-pull request through [the workflow](.github/workflows/verify-sources.yml).
+pull request through [the workflow](.github/workflows/verify-sources.yml), which runs the
+tests through [PSModule/Invoke-Pester](https://github.com/PSModule/Invoke-Pester).
 
 Requirements: PowerShell 7, Python 3.9 or later, `pdfplumber`
-(`python -m pip install pdfplumber`), and Pester 6 for the tests — the test runner installs
-it if it is missing.
+(`python -m pip install pdfplumber`), and Pester 6 for the tests
+(`Install-PSResource -Name Pester -Version 6.0.1`).
 
 ## Writing a test
 

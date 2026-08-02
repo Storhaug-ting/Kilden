@@ -54,8 +54,7 @@ med virkeligheten.
 ├── scripts/
 │   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
 │   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
-│   ├── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
-│   └── Invoke-PesterSuite.ps1     ← runs the tests
+│   └── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
 ├── tests/
 │   └── Test-MarkdownLink.Tests.ps1  ← holds the link check to what it claims
 └── docs/
@@ -124,15 +123,14 @@ That check has tests of its own, because a check reporting success over nothing
 looks exactly like one that worked:
 
 ```powershell
-./scripts/Invoke-PesterSuite.ps1
+Invoke-Pester -Path ./tests
 ```
 
 All three checks run on every pull request, see
 [arbeidsflyten](.github/workflows/verify-sources.yml).
 
 Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
-(`python -m pip install pdfplumber`). The test runner installs Pester 6 itself if
-it is missing.
+(`python -m pip install pdfplumber`), and Pester 6 for the tests.
 
 ## Hvorfor markdown og ikke bare originalen?
 
