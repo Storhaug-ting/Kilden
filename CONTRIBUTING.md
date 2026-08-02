@@ -62,11 +62,38 @@ are documented in `DEFAULT_PROFILE` at the top of
 
 # Verify without network access
 ./scripts/Update-Source.ps1 -Frakoblet
+
+# Check that every relative link and heading anchor resolves
+./scripts/Test-MarkdownLink.ps1
+
+# Run the tests that hold the link check to what it claims
+./scripts/Invoke-PesterSuite.ps1
 ```
 
 The script exits with an error if a local copy does not match its recorded checksum, or if
 the markdown is not identical to what the conversion produces. The same checks run on every
 pull request through [the workflow](.github/workflows/verify-sources.yml).
 
-Requirements: PowerShell 7, Python 3.9 or later, and `pdfplumber`
-(`python -m pip install pdfplumber`).
+Requirements: PowerShell 7, Python 3.9 or later, `pdfplumber`
+(`python -m pip install pdfplumber`), and Pester 6 for the tests — the test runner installs
+it if it is missing.
+
+## Writing a test
+
+Tests live in [`tests/`](tests/), one `*.Tests.ps1` file per script under test, and are
+discovered from disk: a new file is run by the workflow the moment it lands.
+
+Each test builds a throwaway repository in the temporary directory and runs the script under
+test **in a separate process**, so what is asserted is the exit code and the output an
+operator and a workflow see, and not internal state a caller could reach around.
+
+Two rules are worth stating, because breaking either produces a suite that is green and says
+nothing:
+
+- **A check that checked nothing has failed.** Assert on the count, not only on the verdict.
+  Every link resolving is trivially true when no link was found.
+- **Prove a new test can fail.** Break the behaviour it guards, watch it go red, read the
+  message, then restore. A test that has never failed has not been tested.
+
+See [Testing](https://msxorg.github.io/docs/Coding-Standards/Testing/) for the reasoning
+behind both.

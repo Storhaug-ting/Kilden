@@ -54,7 +54,10 @@ med virkeligheten.
 ├── scripts/
 │   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
 │   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
-│   └── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
+│   ├── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
+│   └── Invoke-PesterSuite.ps1     ← runs the tests
+├── tests/
+│   └── Test-MarkdownLink.Tests.ps1  ← holds the link check to what it claims
 └── docs/
     ├── index.md                   ← oversikt over alle kilder
     └── <kortnavn>/
@@ -117,11 +120,19 @@ and that every anchor matches a heading. Anchors are computed the way GitHub
 computes them, deliberately not with the slug function inside the conversion — a
 check built on the same function it verifies only confirms itself.
 
-Begge kontrollene kjører på hver pull request, se
+That check has tests of its own, because a check reporting success over nothing
+looks exactly like one that worked:
+
+```powershell
+./scripts/Invoke-PesterSuite.ps1
+```
+
+All three checks run on every pull request, see
 [arbeidsflyten](.github/workflows/verify-sources.yml).
 
 Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
-(`python -m pip install pdfplumber`).
+(`python -m pip install pdfplumber`). The test runner installs Pester 6 itself if
+it is missing.
 
 ## Hvorfor markdown og ikke bare originalen?
 
