@@ -1,8 +1,8 @@
-# Innhold i `sources/`
+# Innhold i Kilden
 
-Oversikt over alt eksternt materiale som ligger lokalt i repoet.
+Oversikt over alt eksternt materiale som ligger her.
 **Denne listen oppdateres hver gang en kilde legges til, endres eller fjernes.**
-Se [README.md](README.md) for hvordan mappa er ment å virke.
+Se [README.md](README.md) for hvordan repoet er ment å virke.
 
 | Kilde | Utgiver | Original (lokal kopi) | Reverse-engineered kilde | Hentet |
 |-------|---------|-----------------------|--------------------------|--------|
@@ -22,12 +22,15 @@ Se [README.md](README.md) for hvordan mappa er ment å virke.
 - **Saksgangen i jordskifteretten:**
   [kap. 2.2](veileder-bruksordning-for-veg/veileder-bruksordning-for-veg.md#22-nærmere-om-saksgangen)
 
-## Ikke flyttet hit ennå
+## Ikke tatt inn ennå
 
-Disse ligger fortsatt der de ble lagt, og skal etter planen inn i `sources/`
-med samme oppsett:
+Disse ligger fortsatt i prosjektrepoet der de ble lagt, og skal etter planen inn
+her med samme oppsett:
 
-- `Jordskiftesak/lover/` – lovtekster (veglova, sameigelova, eierseksjonslova
-  med flere), i dag som nedlastet HTML + markdown.
-- `Jordskiftesak/2 - Ekstraordinært årsmøte/kilder/` – privatvei.no og
-  Huseiernes standardvedtekter, i dag som nedlastet HTML/PDF + markdown.
+- `Jordskiftesak/lover/` i S62 – lovtekster (veglova, sameigelova,
+  eierseksjonslova med flere), i dag som nedlastet HTML + markdown. Uten vern
+  etter åndsverklova § 14, så de kan ligge her.
+
+Materiale fra private aktører – blant annet Huseiernes standardvedtekter og
+artiklene fra privatvei.no i S62 – tas **ikke** inn her. Se **Opphavsrett** i
+[README.md](README.md).
