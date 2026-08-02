@@ -44,7 +44,7 @@ redigerbart utgangspunkt, hentes de derfra.
 Markdown-filen **redigeres ikke for hånd**. Den regenereres med:
 
 ```powershell
-./sources/scripts/Update-Source.ps1 veileder-bruksordning-for-veg -Skriv
+./scripts/Update-Source.ps1 veileder-bruksordning-for-veg -Skriv
 ```
 
 ## Hvordan gjengivelsen er laget

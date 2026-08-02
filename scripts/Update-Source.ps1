@@ -4,7 +4,7 @@
     Henter en ekstern kilde på nytt, kontrollerer den og regenererer markdown.
 
 .DESCRIPTION
-    Hver kilde under `sources/` er beskrevet i en `kilde.psd1` med hvor
+    Hver kilde i dette repoet er beskrevet i en `kilde.psd1` med hvor
     originalen ligger på nett, hvilken sjekksum den skal ha, og hvilke regler
     som gjelder for konvertering til markdown.
 
@@ -23,7 +23,7 @@
     utgave fra nett (oppdaterer original, sjekksum og hentet-dato).
 
 .PARAMETER Navn
-    Mappenavnet under `sources/`. Utelates den, behandles alle kilder.
+    Mappenavnet til kilden. Utelates det, behandles alle kilder.
 
 .PARAMETER Skriv
     Skriv den genererte markdown-filen til repoet.
@@ -168,7 +168,7 @@ function Update-Source {
             "> Maskingenerert markdown-gjengivelse av [$($origin.Original)]($($origin.Original))."
             "> Originalen er utgitt av $($origin.Utgiver) og hentet fra"
             "> <$($origin.Url)>."
-            "> Ikke rediger denne filen for hånd – kjør ``sources/scripts/Update-Source.ps1`` i stedet."
+            "> Ikke rediger denne filen for hånd – kjør ``scripts/Update-Source.ps1`` i stedet."
             "> Se [README.md](README.md) for opphav og sjekksum."
             ''
         )
@@ -207,7 +207,7 @@ $directories = if ($Navn) {
     @(Get-Item -LiteralPath (Join-Path $sourcesRoot $Navn))
 } else {
     Get-ChildItem -LiteralPath $sourcesRoot -Directory |
-        Where-Object { $_.Name -ne 'scripts' } |
+        Where-Object { $_.Name -ne 'scripts' -and -not $_.Name.StartsWith('.') } |
         Sort-Object Name
 }
 

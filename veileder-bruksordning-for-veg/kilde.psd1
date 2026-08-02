@@ -22,7 +22,7 @@
     # ---------------------------------------------------------------------
     # Konverteringsregler – hvordan PDF-en gjøres om til markdown
     # ---------------------------------------------------------------------
-    # Nøklene sendes videre til sources/scripts/Convert-PdfToMarkdown.py.
+    # Nøklene sendes videre til scripts/Convert-PdfToMarkdown.py.
     # `Font` og `Pattern` er regulære uttrykk; `Size` er skriftstørrelsen i
     # punkt. Se skriptets DEFAULT_PROFILE for hva hver nøkkel betyr.
     Profil   = @{

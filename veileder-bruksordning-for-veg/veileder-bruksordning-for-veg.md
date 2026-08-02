@@ -3,7 +3,7 @@
 > Maskingenerert markdown-gjengivelse av [veileder---bruksordning-for-veg.pdf](veileder---bruksordning-for-veg.pdf).
 > Originalen er utgitt av Domstoladministrasjonen og hentet fra
 > <https://www.domstol.no/globalassets/da/veiledere-og-rapporter/jordskifte/veileder---bruksordning-for-veg.pdf>.
-> Ikke rediger denne filen for hånd – kjør `sources/scripts/Update-Source.ps1` i stedet.
+> Ikke rediger denne filen for hånd – kjør `scripts/Update-Source.ps1` i stedet.
 > Se [README.md](README.md) for opphav og sjekksum.
 
 ## Innhold
