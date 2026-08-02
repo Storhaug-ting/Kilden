@@ -310,5 +310,20 @@ See [the function](#the-slug-function).
             $result.ExitCode | Should -Be 0
             $result.Links | Should -Be 1
         }
+
+        It 'accepts the anchor of a heading holding a link' {
+            $fixture = New-LinkFixture -Content @'
+# Page
+
+## See [the real page](./Real.md)
+
+Jump to [that heading](#see-the-real-page).
+'@
+
+            $result = Invoke-LinkFixture -ScriptPath $fixture.ScriptPath
+
+            $result.ExitCode | Should -Be 0
+            $result.Links | Should -Be 2
+        }
     }
 }
