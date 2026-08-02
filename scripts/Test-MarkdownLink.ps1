@@ -29,6 +29,11 @@
     External links, absolute paths, links inside fenced code blocks, and links
     inside inline code spans are ignored on purpose.
 
+    It also exits 1 when it found no Markdown files at all. Every link resolving
+    is trivially true when there are no links, so an empty run is a failure
+    rather than a pass - a wrong root or an over-broad filter cannot make this
+    check quietly green.
+
     The script changes nothing. It exits 0 when every link resolves, and exits 1
     listing each broken link otherwise, so it can gate a pull request.
 
@@ -323,6 +328,11 @@ foreach ($file in $files) {
 }
 
 $summary = "$checked link(s) checked in $($files.Count) file(s)."
+if ($files.Count -eq 0) {
+    Write-Output "No markdown files were found under $Root - nothing was validated."
+    Write-Output 'A check that checked nothing is a failure, not a pass.'
+    exit 1
+}
 if ($broken.Count -eq 0) {
     Write-Output "$summary Every one of them resolves."
     exit 0
