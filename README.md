@@ -53,7 +53,8 @@ med virkeligheten.
 ├── README.md                      ← denne filen
 ├── scripts/
 │   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
-│   └── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
+│   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
+│   └── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
 └── docs/
     ├── index.md                   ← oversikt over alle kilder
     └── <kortnavn>/
@@ -117,8 +118,22 @@ Verktøykjeden ligger i [`scripts/`](scripts/) og deles av alle kilder.
 
 Skriptet avslutter med feil hvis den lokale kopien ikke stemmer med registrert
 sjekksum, eller hvis markdown-filen ikke er identisk med det konverteringen
-produserer. Det gjør det trygt å kjøre som en kontroll, og det er nøyaktig det
-[arbeidsflyten](.github/workflows/verify-sources.yml) gjør på hver pull request.
+produserer. Det gjør det trygt å kjøre som en kontroll.
+
+Det sier derimot ingenting om at lenkene i markdown-filen virker. Det er en egen
+kontroll:
+
+```powershell
+./scripts/Test-MarkdownLink.ps1
+```
+
+It walks every markdown file, checks that relative links hit a file that exists,
+and that every anchor matches a heading. Anchors are computed the way GitHub
+computes them, deliberately not with the slug function inside the conversion — a
+check built on the same function it verifies only confirms itself.
+
+Begge kontrollene kjører på hver pull request, se
+[arbeidsflyten](.github/workflows/verify-sources.yml).
 
 Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
 (`python -m pip install pdfplumber`).

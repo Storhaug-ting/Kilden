@@ -1,7 +1,10 @@
-name: Verifiser kilder
+name: Verify sources
 
-# Hver kilde skal stemme med originalen: den lokale kopien mot registrert
-# sjekksum, og markdown-filen mot det konverteringen faktisk produserer.
+# Two checks, and they answer different questions. One measures that a source
+# still matches the original the publisher put out. The other measures that the
+# links inside it lead somewhere. A source can pass the first and fail the
+# second: a generated table of contents can reproduce every word correctly and
+# still point at nothing.
 
 on:
   pull_request:
@@ -15,29 +18,45 @@ concurrency:
 permissions: {}
 
 jobs:
-  verifisering:
-    name: Kildene er i samsvar med originalen
+  sources:
+    name: Sources match the original
     runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
-      - name: Hent repoet
+      - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Sett opp Python
+      - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.x'
 
-      - name: Installer pdfplumber
+      - name: Install pdfplumber
         shell: pwsh
         run: python -m pip install --disable-pip-version-check pdfplumber
 
-      # Samme skript som brukes lokalt, slik at det bare finnes én definisjon av
-      # hva «i samsvar» betyr. Frakoblet, siden en utgiver som legger ut en ny
-      # utgave ikke skal gjøre en urørt pull request rød.
-      - name: Kontroller mot sjekksum og konvertering
+      # The same script that runs locally, so there is only one definition of
+      # what "matches" means. Offline, because a publisher releasing a new
+      # edition should not turn an untouched pull request red.
+      - name: Check against the checksum and the conversion
         shell: pwsh
         run: pwsh -NoProfile -File 'scripts/Update-Source.ps1' -Frakoblet
+
+  links:
+    name: Links and anchors resolve
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # pwsh is on the runner image already, so this check needs no toolchain.
+      - name: Check links and anchors
+        shell: pwsh
+        run: pwsh -NoProfile -File 'scripts/Test-MarkdownLink.ps1'
