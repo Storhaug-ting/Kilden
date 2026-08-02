@@ -283,8 +283,12 @@ $referenceDefinitionPattern = '^\s{0,3}\[(?!\^)[^\]]+\]:\s+(<[^>]+>|\S+)'
 $files = @(if ($Path) {
         $Path | ForEach-Object { Get-Item -LiteralPath ([System.IO.Path]::Combine($Root, $_)) }
     } else {
+        # The exclusion is tested against the path below the root, not the full
+        # path: a clone can itself sit under a dotted directory, and matching on
+        # the full path would then exclude every file in the repository and
+        # report a vacuous pass.
         Get-ChildItem -LiteralPath $Root -Recurse -File -Filter *.md |
-            Where-Object { $_.FullName -notmatch '[\\/]\.[^\\/]+[\\/]' } |
+            Where-Object { $_.FullName.Substring($Root.Length) -notmatch '[\\/]\.[^\\/]+[\\/]' } |
             Sort-Object FullName
     })
 
