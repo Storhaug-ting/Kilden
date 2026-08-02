@@ -1,10 +1,12 @@
 name: Verify sources
 
-# Two checks, and they answer different questions. One measures that a source
-# still matches the original the publisher put out. The other measures that the
-# links inside it lead somewhere. A source can pass the first and fail the
-# second: a generated table of contents can reproduce every word correctly and
-# still point at nothing.
+# Three checks, and they answer different questions. One measures that a source
+# still matches the original the publisher put out. One measures that the links
+# inside it lead somewhere. A source can pass the first and fail the second: a
+# generated table of contents can reproduce every word correctly and still point
+# at nothing. The third measures that the second can still tell the difference,
+# because a check reporting success over nothing looks exactly like one that
+# worked.
 
 on:
   pull_request:
@@ -60,3 +62,24 @@ jobs:
       - name: Check links and anchors
         shell: pwsh
         run: pwsh -NoProfile -File 'scripts/Test-MarkdownLink.ps1'
+
+  # Its own job, so the name of the red check says which of the three failed.
+  # The suites are discovered from disk, so a new tests/*.Tests.ps1 file is
+  # gated the moment it lands, without touching this workflow.
+  tests:
+    name: The link check can still fail
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The script pins Pester to an exact version, and exits non-zero when it
+      # discovers no suite at all - a test job that runs nothing is green and
+      # worthless.
+      - name: Run the Pester suites
+        shell: pwsh
+        run: pwsh -NoProfile -File 'scripts/Invoke-PesterSuite.ps1'
