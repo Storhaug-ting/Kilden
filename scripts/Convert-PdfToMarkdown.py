@@ -303,12 +303,29 @@ def merge_emphasis(text: str) -> str:
     return text
 
 
+HTML_TAG_RE = re.compile(r"<[!/a-z].*?>", re.I | re.S)
+
+
 def slugify(text: str) -> str:
-    """Ankerslug på samme form som GitHub genererer."""
-    text = unicodedata.normalize("NFC", text).strip().lower()
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"\s+", "-", text.strip())
-    return re.sub(r"-{2,}", "-", text).strip("-")
+    """Ankerslug på nøyaktig den formen GitHub genererer.
+
+    GitHub (github-slugger) fjerner tegnsetting og symboler, og gjør deretter
+    *hvert enkelt* mellomrom om til en bindestrek. Den slår verken sammen
+    bindestreker som havner ved siden av hverandre eller fjerner dem i
+    kantene. En overskrift som «§ 1. VEGEN» blir derfor `-1-vegen`, og
+    «1.3 Organisasjonsform - medeiere …» blir
+    `13-organisasjonsform---medeiere-…`.
+    """
+    text = HTML_TAG_RE.sub("", unicodedata.normalize("NFC", text)).strip().lower()
+    kept = []
+    for ch in text:
+        if ch == " ":
+            kept.append("-")
+        elif ch in "-_":
+            kept.append(ch)
+        elif unicodedata.category(ch)[0] in ("L", "N", "M"):
+            kept.append(ch)
+    return "".join(kept)
 
 
 def words_of(text: str):
