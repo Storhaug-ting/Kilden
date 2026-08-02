@@ -2,7 +2,7 @@
 
 Oversikt over alt eksternt materiale som ligger her.
 **Denne listen oppdateres hver gang en kilde legges til, endres eller fjernes.**
-Se [README.md](README.md) for hvordan repoet er ment å virke.
+Se [README.md](../README.md) for hvordan repoet er ment å virke.
 
 | Kilde | Utgiver | Original (lokal kopi) | Reverse-engineered kilde | Hentet |
 |-------|---------|-----------------------|--------------------------|--------|
@@ -33,4 +33,4 @@ her med samme oppsett:
 
 Materiale fra private aktører – blant annet Huseiernes standardvedtekter og
 artiklene fra privatvei.no i S62 – tas **ikke** inn her. Se **Opphavsrett** i
-[README.md](README.md).
+[README.md](../README.md).
