@@ -43,6 +43,13 @@ sources/
 
 ## Regler
 
+- **Endringer i en kilde skjer i egne pull requests.** Innholdet her er en
+  lokal representasjon av materiale vi ikke rår over. En pull request som
+  endrer noe under `sources/`, endrer ikke noe annet – og en pull request som
+  bruker en kilde, bare leser den. Endringene er i hovedsak additive: en ny
+  kilde legges til, eller en eksisterende oppdateres fordi utgiveren har
+  publisert en ny utgave. Vi retter aldri opp i en lov eller en veileder for
+  at den skal passe argumentet vårt.
 - **Markdown-filen redigeres aldri for hånd.** Den er generert. Skal noe
   endres, endres konverteringsreglene i `kilde.psd1` og filen regenereres.
 - **Originalen endres aldri.** Publiserer utgiveren en ny utgave, tar vi den
