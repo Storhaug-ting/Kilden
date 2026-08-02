@@ -54,9 +54,11 @@ med virkeligheten.
 ├── scripts/
 │   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
 │   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
-│   └── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
+│   ├── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
+│   └── Assert-TestCount.ps1       ← fails the test job when nothing was tested
 ├── tests/
-│   └── Test-MarkdownLink.Tests.ps1  ← holds the link check to what it claims
+│   ├── Test-MarkdownLink.Tests.ps1  ← holds the link check to what it claims
+│   └── Assert-TestCount.Tests.ps1   ← holds that guard to what it claims
 └── docs/
     ├── index.md                   ← oversikt over alle kilder
     └── <kortnavn>/

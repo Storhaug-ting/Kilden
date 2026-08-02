@@ -92,7 +92,10 @@ Two rules are worth stating, because breaking either produces a suite that is gr
 nothing:
 
 - **A check that checked nothing has failed.** Assert on the count, not only on the verdict.
-  Every link resolving is trivially true when no link was found.
+  Every link resolving is trivially true when no link was found. The workflow applies the
+  same rule to the suite itself: [`scripts/Assert-TestCount.ps1`](scripts/Assert-TestCount.ps1)
+  reads how many tests ran and fails the job on zero — and on no answer at all, since a
+  count that never arrived is not a count of zero.
 - **Prove a new test can fail.** Break the behaviour it guards, watch it go red, read the
   message, then restore. A test that has never failed has not been tested.
 
