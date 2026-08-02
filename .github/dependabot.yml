@@ -1,0 +1,24 @@
+# Dependency updates. The workflows are the only pinned dependency here: the
+# scripts run on PowerShell and Python from the runner image, and there is no
+# package manifest for either.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    labels:
+      - dependencies
+      - github-actions
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      # Bundle low-risk minor and patch bumps into one PR; majors arrive alone
+      # so they can be reviewed by hand.
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch

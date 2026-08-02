@@ -64,21 +64,6 @@ med virkeligheten.
         └── kilde.psd1             ← oppskrift (URL, sjekksum, regler)
 ```
 
-## Regler
-
-- **Endringene er additive.** En ny kilde legges til, eller en eksisterende
-  oppdateres fordi utgiveren har publisert en ny utgave. Vi retter aldri opp i
-  en lov eller en veileder for at den skal passe argumentet vårt.
-- **Markdown-filen redigeres aldri for hånd.** Den er generert. Skal noe
-  endres, endres konverteringsreglene i `kilde.psd1` og filen regenereres.
-- **Originalen endres aldri.** Publiserer utgiveren en ny utgave, tar vi den
-  inn som en ny versjon – da viser git-historikken nøyaktig hva som ble endret,
-  både i originalen og i teksten.
-- **Kilder er referanser, ikke vedtak.** Ingenting her er bindende for noen.
-  Det er prosjektenes egne dokumenter som gjelder.
-- **[docs/index.md](docs/index.md) oppdateres hver gang en kilde legges til,
-  endres eller fjernes.**
-
 ## Opphavsrett
 
 Repoet er offentlig. Derfor tas bare materiale inn som lovlig kan gjengis.
@@ -137,22 +122,6 @@ Begge kontrollene kjører på hver pull request, se
 
 Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
 (`python -m pip install pdfplumber`).
-
-## Legge til en ny kilde
-
-1. Kontroller at materialet lovlig kan gjengis her, jf. **Opphavsrett** over.
-2. Lag mappa `docs/<kortnavn>/`.
-3. Legg inn `kilde.psd1` med `Opphav` (tittel, utgiver, URL, filnavn, sjekksum,
-   hentet-dato) og `Profil` (konverteringsregler).
-4. Kjør `./scripts/Update-Source.ps1 <kortnavn> -GodtaNyVersjon -Skriv`.
-   Da lastes originalen ned, sjekksummen registreres og markdown genereres.
-5. Skriv `README.md` i mappa som forklarer hva kilden er, hvem som har utgitt
-   den, og hvorfor vi kan ha den liggende her.
-6. **Legg kilden inn i [docs/index.md](docs/index.md).**
-
-Konverteringsprofilen bestemmes av hvordan originalen ser ut. Reglene og hva
-de betyr er dokumentert i `DEFAULT_PROFILE` øverst i
-[`scripts/Convert-PdfToMarkdown.py`](scripts/Convert-PdfToMarkdown.py).
 
 ## Hvorfor markdown og ikke bare originalen?
 
