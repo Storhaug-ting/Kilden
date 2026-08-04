@@ -1,10 +1,12 @@
 name: Verify sources
 
-# Two checks, and they answer different questions. One measures that a source
-# still matches the original the publisher put out. The other measures that the
-# links inside it lead somewhere. A source can pass the first and fail the
-# second: a generated table of contents can reproduce every word correctly and
-# still point at nothing.
+# Three checks, and they answer different questions. One measures that a source
+# still matches the original the publisher put out. One measures that the links
+# inside it lead somewhere. A source can pass the first and fail the second: a
+# generated table of contents can reproduce every word correctly and still point
+# at nothing. The third measures that the second can still tell the difference,
+# because a check reporting success over nothing looks exactly like one that
+# worked.
 
 on:
   pull_request:
@@ -60,3 +62,42 @@ jobs:
       - name: Check links and anchors
         shell: pwsh
         run: pwsh -NoProfile -File 'scripts/Test-MarkdownLink.ps1'
+
+  # Its own job, so the name of the red check says which of the three failed.
+  tests:
+    name: The link check can still fail
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Pester is pinned to an exact version, because a workflow is an end
+      # artifact rather than a library: a new release must not turn an untouched
+      # pull request red. Keep it inside the range the suites' '#Requires' lines
+      # declare. The GUID is Pester's own, so a different module of the same
+      # name on the runner cannot satisfy the pin.
+      - name: Run the Pester suites
+        id: pester
+        uses: PSModule/Invoke-Pester@4ff33199141fdf22568990b6107fe3148ae93a1c # v5.1.0
+        with:
+          Path: ./tests
+          Version: 6.0.1
+          Guid: a699dea5-2c73-4616-a270-1f7abb777e71
+
+      # Pester throws when it finds no test file at all, so an empty 'tests' is
+      # already red. A suite that holds no test is not: Pester returns Passed
+      # with a total of nothing, and the run is green having proved nothing -
+      # the same vacuous pass this check exists to catch. The guard also fails
+      # when no count arrives, because the count is an output of the pinned
+      # action above and a bump that renamed it must not read as a pass. It is
+      # passed through the environment rather than expanded into the command,
+      # so a value can never become code.
+      - name: Fail when the run proved nothing
+        shell: pwsh
+        env:
+          TOTAL_COUNT: ${{ steps.pester.outputs.TotalCount }}
+        run: ./scripts/Assert-TestCount.ps1 -TotalCount $env:TOTAL_COUNT

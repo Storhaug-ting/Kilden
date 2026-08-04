@@ -32,7 +32,8 @@
     It also exits 1 when it found no Markdown files at all. Every link resolving
     is trivially true when there are no links, so an empty run is a failure
     rather than a pass - a wrong root or an over-broad filter cannot make this
-    check quietly green.
+    check quietly green. A '-Path' that names something which is not a file
+    fails the same way, naming what it could not find.
 
     The script changes nothing. It exits 0 when every link resolves, and exits 1
     listing each broken link otherwise, so it can gate a pull request.
@@ -284,6 +285,19 @@ function Get-LinkTargetIssue {
 # link target.
 $inlineLinkPattern = '\[[^\]]*\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
 $referenceDefinitionPattern = '^\s{0,3}\[(?!\^)[^\]]+\]:\s+(<[^>]+>|\S+)'
+
+# A typo in '-Path' is the same failure as an over-broad filter: the check ends
+# up looking at less than it was asked to. Report it the way a broken link is
+# reported, rather than letting Get-Item throw a stack trace at the operator.
+if ($Path) {
+    $missing = @($Path | Where-Object { -not [System.IO.File]::Exists([System.IO.Path]::Combine($Root, $_)) })
+    if ($missing.Count -gt 0) {
+        Write-Output "$($missing.Count) of the $($Path.Count) path(s) given with -Path do not name a file under ${Root}:"
+        $missing | Sort-Object | ForEach-Object { Write-Output "  - $_" }
+        Write-Output 'Nothing was validated.'
+        exit 1
+    }
+}
 
 $files = @(if ($Path) {
         $Path | ForEach-Object { Get-Item -LiteralPath ([System.IO.Path]::Combine($Root, $_)) }
