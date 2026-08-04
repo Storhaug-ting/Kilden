@@ -8,13 +8,16 @@ Se [README.md](../README.md) for hvordan repoet er ment å virke.
 |-------|---------|-----------------------|--------------------------|--------|
 | [Veileder for bruksordning for veg](veileder-bruksordning-for-veg/README.md) | Domstoladministrasjonen | [veileder---bruksordning-for-veg.pdf](veileder-bruksordning-for-veg/veileder---bruksordning-for-veg.pdf) (61 s.) | [veileder-bruksordning-for-veg.md](veileder-bruksordning-for-veg/veileder-bruksordning-for-veg.md) | 02.08.2026 |
 
-### Lovtekster
+### Lover og forskrifter
 
 Disse har ingen statisk original – de genereres fra Lovdata sitt åpne API, som
-ajourfører datasettet hver natt. «Original (lokal snapshot)» er derfor XML-en
+ajourfører datasettene hver natt. «Original (lokal snapshot)» er derfor XML-en
 Lovdata sitt API serverte da vi hentet den, ikke en fil Lovdata selv har
-publisert et fast sted. Se den enkelte kildens README for hvorfor. Alle er
-uten vern etter åndsverklova § 14, se [README.md](../README.md#copyright).
+publisert et fast sted. Se den enkelte kildens README for hvorfor. Lover og
+forskrifter ligger i hvert sitt datasett hos Lovdata (`gjeldende-lover` og
+`gjeldende-sentrale-forskrifter`); hvilket som gjelder står i kildens
+`kilde.psd1`. Alle er uten vern etter åndsverklova § 14, se
+[README.md](../README.md#copyright).
 
 | Kilde | Utgiver | LovId | Original (lokal snapshot) | Reverse-engineered kilde | Hentet |
 |-------|---------|-------|----------------------------|--------------------------|--------|
@@ -27,6 +30,7 @@ uten vern etter åndsverklova § 14, se [README.md](../README.md#copyright).
 | [Markaloven](markaloven/README.md) | Lovdata | `2009-06-05-35` | [markaloven.xml](markaloven/markaloven.xml) | [markaloven.md](markaloven/markaloven.md) | 04.08.2026 |
 | [Burettslagslova](burettslagslova/README.md) | Lovdata | `2003-06-06-39` | [burettslagslova.xml](burettslagslova/burettslagslova.xml) | [burettslagslova.md](burettslagslova/burettslagslova.md) | 04.08.2026 |
 | [Eierseksjonsloven](eierseksjonslova/README.md) | Lovdata | `2017-06-16-65` | [eierseksjonslova.xml](eierseksjonslova/eierseksjonslova.xml) | [eierseksjonslova.md](eierseksjonslova/eierseksjonslova.md) | 04.08.2026 |
+| [Byggesaksforskriften (SAK 10)](byggesaksforskriften/README.md) | Lovdata | `2010-03-26-488` | [byggesaksforskriften.xml](byggesaksforskriften/byggesaksforskriften.xml) | [byggesaksforskriften.md](byggesaksforskriften/byggesaksforskriften.md) | 04.08.2026 |
 
 ## Snarveier til det vi bruker mest
 
