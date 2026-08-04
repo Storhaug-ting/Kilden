@@ -26,10 +26,13 @@ forskrifter ligger i hvert sitt datasett hos Lovdata (`gjeldende-lover` og
 | [Sameigelova](sameigelova/README.md) | Lovdata | `1965-06-18-6` | [sameigelova.xml](sameigelova/sameigelova.xml) | [sameigelova.md](sameigelova/sameigelova.md) | 04.08.2026 |
 | [Servituttlova](servituttlova/README.md) | Lovdata | `1968-11-29` | [servituttlova.xml](servituttlova/servituttlova.xml) | [servituttlova.md](servituttlova/servituttlova.md) | 04.08.2026 |
 | [Hevdslova](hevdslova/README.md) | Lovdata | `1966-12-09-1` | [hevdslova.xml](hevdslova/hevdslova.xml) | [hevdslova.md](hevdslova/hevdslova.md) | 04.08.2026 |
+| [Grannelova](grannelova/README.md) | Lovdata | `1961-06-16-15` | [grannelova.xml](grannelova/grannelova.xml) | [grannelova.md](grannelova/grannelova.md) | 05.08.2026 |
+| [Grannegjerdelova](grannegjerdelova/README.md) | Lovdata | `1961-05-05` | [grannegjerdelova.xml](grannegjerdelova/grannegjerdelova.xml) | [grannegjerdelova.md](grannegjerdelova/grannegjerdelova.md) | 05.08.2026 |
 | [Friluftsloven](friluftsloven/README.md) | Lovdata | `1957-06-28-16` | [friluftsloven.xml](friluftsloven/friluftsloven.xml) | [friluftsloven.md](friluftsloven/friluftsloven.md) | 04.08.2026 |
 | [Markaloven](markaloven/README.md) | Lovdata | `2009-06-05-35` | [markaloven.xml](markaloven/markaloven.xml) | [markaloven.md](markaloven/markaloven.md) | 04.08.2026 |
 | [Burettslagslova](burettslagslova/README.md) | Lovdata | `2003-06-06-39` | [burettslagslova.xml](burettslagslova/burettslagslova.xml) | [burettslagslova.md](burettslagslova/burettslagslova.md) | 04.08.2026 |
 | [Eierseksjonsloven](eierseksjonslova/README.md) | Lovdata | `2017-06-16-65` | [eierseksjonslova.xml](eierseksjonslova/eierseksjonslova.xml) | [eierseksjonslova.md](eierseksjonslova/eierseksjonslova.md) | 04.08.2026 |
+| [Plan- og bygningsloven](plan-og-bygningsloven/README.md) | Lovdata | `2008-06-27-71` | [plan-og-bygningsloven.xml](plan-og-bygningsloven/plan-og-bygningsloven.xml) | [plan-og-bygningsloven.md](plan-og-bygningsloven/plan-og-bygningsloven.md) | 05.08.2026 |
 | [Byggesaksforskriften (SAK 10)](byggesaksforskriften/README.md) | Lovdata | `2010-03-26-488` | [byggesaksforskriften.xml](byggesaksforskriften/byggesaksforskriften.xml) | [byggesaksforskriften.md](byggesaksforskriften/byggesaksforskriften.md) | 04.08.2026 |
 
 ## Snarveier til det vi bruker mest
