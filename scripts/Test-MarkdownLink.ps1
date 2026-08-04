@@ -79,7 +79,7 @@ function ConvertTo-GitHubSlug {
 
         .EXAMPLE
         ConvertTo-GitHubSlug -Text 'Bruksordning for veg - § 3-8'
-        Returns 'bruksordning-for-veg---3-8'.
+        Returns 'bruksordning-for-veg----3-8'.
 
         .OUTPUTS
         [string]
