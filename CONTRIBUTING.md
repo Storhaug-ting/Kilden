@@ -36,7 +36,7 @@ The split is per artifact, not per repository. See
 ## Before adding a source
 
 Only material that may lawfully be reproduced goes in, because the repository is public.
-Read [Opphavsrett](README.md#opphavsrett) in the README first — it states which sources are
+Read [Copyright](README.md#copyright) in the README first — it states which sources are
 free under Norwegian law and which are kept out.
 
 ## Adding a source

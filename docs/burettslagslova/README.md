@@ -59,7 +59,7 @@ Markdown-filen **redigeres ikke for hånd**. Den regenereres med:
 
 Lover er ikke opphavsrettslig vernet, jf. åndsverklova § 14: «Lover,
 forskrifter, rettsavgjerder og andre vedtak av offentleg myndigheit er ikkje
-omfatta av opphavsretten.» Se også dette repoets [README](../../README.md#opphavsrett).
+omfatta av opphavsretten.» Se også dette repoets [README](../../README.md#copyright).
 Lovdata tilbyr i tillegg gjeldende regelverk gjennom sitt åpne API uten
 bruksbegrensninger, mot at Lovdata krediteres som kilde – det gjør denne
 `README.md` og frontmatter i `burettslagslova.md`.

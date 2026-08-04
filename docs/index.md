@@ -14,7 +14,7 @@ Disse har ingen statisk original – de genereres fra Lovdata sitt åpne API, so
 ajourfører datasettet hver natt. «Original (lokal snapshot)» er derfor XML-en
 Lovdata sitt API serverte da vi hentet den, ikke en fil Lovdata selv har
 publisert et fast sted. Se den enkelte kildens README for hvorfor. Alle er
-uten vern etter åndsverklova § 14, se [README.md](../README.md#opphavsrett).
+uten vern etter åndsverklova § 14, se [README.md](../README.md#copyright).
 
 | Kilde | Utgiver | LovId | Original (lokal snapshot) | Reverse-engineered kilde | Hentet |
 |-------|---------|-------|----------------------------|--------------------------|--------|
