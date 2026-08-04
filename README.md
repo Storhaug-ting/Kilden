@@ -40,7 +40,7 @@ der med et kortnavn i små bokstaver, og består av **tre sett filer**:
 | # | Fil | Hva det er |
 |---|-----|-----------|
 | 1 | `README.md` | **Opphavet.** Hvem har utgitt det, når, med lenke til originalen på nett, sjekksum og dato for når vi hentet det. |
-| 2 | Originalfilen (`*.pdf`, `*.html`, …) | **Den lokale kopien**, byte for byte lik det som lå på nett den dagen den ble hentet. Filnavnet er det samme som i URL-en. |
+| 2 | Originalfilen (`*.pdf`, `*.html`, `*.xml`, …) | **Den lokale kopien**, byte for byte lik det som lå på nett den dagen den ble hentet. Filnavnet er det samme som i URL-en – eller, for kilder uten en fast URL (se under), en snapshot av det API-et serverte. |
 | 3 | Markdown-filen (`*.md`) | **Den reverse-engineerte kilden.** En maskingenerert tekstversjon av originalen som kan leses her, lenkes til med anker, og – viktigst – *diffes* når originalen endrer seg. |
 
 I tillegg ligger `kilde.psd1` i mappa. Den er oppskriften: URL, forventet
@@ -48,12 +48,24 @@ sjekksum og reglene som styrer konverteringen. Den er det eneste stedet disse
 opplysningene står, slik at README og markdown-filen ikke kan komme i utakt
 med virkeligheten.
 
+De fleste kildene er en fil utgiveren har publisert et fast sted med en fast
+sjekksum – de kontrolleres av `scripts/Update-Source.ps1`. **Lovtekstene er en
+egen type kilde**: Lovdata har ingen enkelt fil å laste ned, bare et åpent API
+som ajourfører hele lovverket hver natt. `kilde.psd1` markerer dette med
+`Opphav.Kilde = 'lovdata-api'`, «originalfilen» er en lokal snapshot av
+API-svaret i stedet for en nedlastet fil, og kontrollen kjøres av
+`scripts/Update-Lovtekst.ps1` i stedet. Se
+[docs/veglova/README.md](docs/veglova/README.md) for et eksempel og hvorfor
+det er satt opp slik.
+
 ```text
 .
 ├── README.md                      ← denne filen
 ├── scripts/
-│   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
+│   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer statiske kilder
 │   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
+│   ├── Update-Lovtekst.ps1        ← henter, kontrollerer, konverterer lovtekster
+│   ├── Lovdata.psm1               ← Lovdata-API-klient og XML-til-markdown-konvertering
 │   ├── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
 │   └── Assert-TestCount.ps1       ← fails the test job when nothing was tested
 ├── tests/
@@ -61,11 +73,16 @@ med virkeligheten.
 │   └── Assert-TestCount.Tests.ps1   ← holds that guard to what it claims
 └── docs/
     ├── index.md                   ← oversikt over alle kilder
-    └── <kortnavn>/
+    ├── <kortnavn>/                ← statisk kilde
+    │   ├── README.md              ← 1. opphav
+    │   ├── <original>.pdf         ← 2. lokal kopi
+    │   ├── <kortnavn>.md          ← 3. reverse-engineered kilde
+    │   └── kilde.psd1             ← oppskrift (URL, sjekksum, regler)
+    └── <lovnavn>/                 ← lovtekst (Opphav.Kilde = 'lovdata-api')
         ├── README.md              ← 1. opphav
-        ├── <original>.pdf         ← 2. lokal kopi
-        ├── <kortnavn>.md          ← 3. reverse-engineered kilde
-        └── kilde.psd1             ← oppskrift (URL, sjekksum, regler)
+        ├── <lovnavn>.xml          ← 2. lokal snapshot av API-svaret
+        ├── <lovnavn>.md           ← 3. reverse-engineered kilde
+        └── kilde.psd1             ← oppskrift (LovId, datasett, sjekksummer)
 ```
 
 ## Opphavsrett
@@ -105,9 +122,26 @@ Verktøykjeden ligger i [`scripts/`](scripts/) og deles av alle kilder.
 ./scripts/Update-Source.ps1 -Frakoblet
 ```
 
-Skriptet avslutter med feil hvis den lokale kopien ikke stemmer med registrert
-sjekksum, eller hvis markdown-filen ikke er identisk med det konverteringen
-produserer. Det gjør det trygt å kjøre som en kontroll.
+Lovtekstene kontrolleres med et eget skript, siden de ikke har en fast fil å
+laste ned – se **Slik er en kilde bygd opp** over:
+
+```powershell
+# Kontroller alle lovtekster mot Lovdata sitt API og mot innsjekket markdown
+./scripts/Update-Lovtekst.ps1
+
+# Regenerer markdown for én lov
+./scripts/Update-Lovtekst.ps1 veglova -Skriv
+
+# Ta inn en ny snapshot fra Lovdata (etter ajourføring)
+./scripts/Update-Lovtekst.ps1 veglova -GodtaNyVersjon -Skriv
+
+# Kontroller uten nett (mot den innsjekkede snapshoten)
+./scripts/Update-Lovtekst.ps1 -Frakoblet
+```
+
+Begge skriptene avslutter med feil hvis den lokale kopien ikke stemmer med
+registrert sjekksum, eller hvis markdown-filen ikke er identisk med det
+konverteringen produserer. Det gjør det trygt å kjøre som en kontroll.
 
 Det sier derimot ingenting om at lenkene i markdown-filen virker. Det er en egen
 kontroll:
@@ -128,7 +162,7 @@ looks exactly like one that worked:
 Invoke-Pester -Path ./tests
 ```
 
-All three checks run on every pull request, see
+Alle fire kontrollene kjører på hver pull request, se
 [arbeidsflyten](.github/workflows/verify-sources.yml).
 
 Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
