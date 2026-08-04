@@ -29,7 +29,8 @@ The split is per artifact, not per repository. See
 - **Sources are references, not decisions.** Nothing here binds anyone. The projects' own
   documents govern.
 - **One source per pull request.** A change to a source is its own pull request, with its
-  own history.
+  own history. A batch of related sources that share a single fetch — such as the law texts
+  pulled from one Lovdata dataset snapshot — may land together in one pull request instead.
 - **`docs/index.md` is updated whenever a source is added, changed, or removed.**
 
 ## Before adding a source
@@ -54,6 +55,18 @@ The conversion profile depends on what the original looks like. The rules and th
 are documented in `DEFAULT_PROFILE` at the top of
 [`scripts/Convert-PdfToMarkdown.py`](scripts/Convert-PdfToMarkdown.py).
 
+### Sources with no static original
+
+Some publishers have no single file with a fixed checksum to download — Lovdata publishes
+current law text through an open API that re-publishes its whole dataset every night instead
+of hosting one file per law. For those, `kilde.psd1` has `Opphav.Kilde = 'lovdata-api'` instead
+of a `Profil` block, the "original" is a local snapshot of what the API served rather than a
+downloaded file, and `./scripts/Update-Lovtekst.ps1 <short-name> -GodtaNyVersjon -Skriv` takes
+the place of `Update-Source.ps1`. Everything else about the folder — `README.md`, the generated
+markdown, the entry in `docs/index.md` — follows the same rules as any other source. See
+[docs/veglova/README.md](docs/veglova/README.md) for a worked example and the reasoning behind
+it.
+
 ## Checking a change
 
 ```powershell
@@ -69,6 +82,9 @@ are documented in `DEFAULT_PROFILE` at the top of
 # Run the tests that hold the link check to what it claims
 Invoke-Pester -Path ./tests
 ```
+
+Law texts are checked the same way, with `./scripts/Update-Lovtekst.ps1` in place of
+`Update-Source.ps1` — see [Sources with no static original](#sources-with-no-static-original).
 
 The script exits with an error if a local copy does not match its recorded checksum, or if
 the markdown is not identical to what the conversion produces. The same checks run on every

@@ -103,6 +103,12 @@ function Update-Source {
 
     $manifest = Import-PowerShellDataFile -LiteralPath $manifestPath
     $origin = $manifest.Opphav
+
+    if ($origin.Kilde -eq 'lovdata-api') {
+        Write-Verbose "Hopper over $name (Opphav.Kilde = lovdata-api, håndteres av Update-Lovtekst.ps1)."
+        return
+    }
+
     $originalPath = Join-Path $Directory.FullName $origin.Original
     $markdownPath = Join-Path $Directory.FullName $origin.Markdown
 

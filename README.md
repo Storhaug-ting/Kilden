@@ -42,7 +42,7 @@ files**:
 | # | File | What it is |
 |---|-----|-----------|
 | 1 | `README.md` | **The provenance.** Who published it, when, with a link to the original online, checksum, and the date we retrieved it. |
-| 2 | The original file (`*.pdf`, `*.html`, …) | **The local copy**, byte for byte identical to what was online the day it was retrieved. The file name matches the one in the URL. |
+| 2 | The original file (`*.pdf`, `*.html`, `*.xml`, …) | **The local copy**, byte for byte identical to what was online the day it was retrieved. The file name matches the one in the URL — or, for sources with no fixed URL (see below), a snapshot of what the API served. |
 | 3 | The markdown file (`*.md`) | **The reverse-engineered source.** A machine-generated text version of the original that can be read here, linked to with anchors, and — most importantly — *diffed* when the original changes. |
 
 The folder also holds `kilde.psd1`. That is the recipe: URL, expected
@@ -50,12 +50,24 @@ checksum, and the rules that drive the conversion. It is the only place
 these facts are recorded, so the README and the markdown file cannot drift
 out of sync with reality.
 
+Most sources are a file the publisher has posted at a fixed location with a
+fixed checksum — those are verified by `scripts/Update-Source.ps1`. **The law
+texts are a different kind of source**: Lovdata has no single file to
+download, only an open API that re-publishes the whole statute book every
+night. `kilde.psd1` marks this with `Opphav.Kilde = 'lovdata-api'`, the
+"original file" is a local snapshot of the API response instead of a
+downloaded file, and verification runs through `scripts/Update-Lovtekst.ps1`
+instead. See [docs/veglova/README.md](docs/veglova/README.md) for an example
+and why it's set up that way.
+
 ```text
 .
 ├── README.md                      ← this file
 ├── scripts/
-│   ├── Update-Source.ps1          ← fetches, verifies, converts
+│   ├── Update-Source.ps1          ← fetches, verifies, converts static sources
 │   ├── Convert-PdfToMarkdown.py   ← the actual PDF-to-markdown conversion
+│   ├── Update-Lovtekst.ps1        ← fetches, verifies, converts law texts
+│   ├── Lovdata.psm1               ← Lovdata API client and XML-to-markdown conversion
 │   ├── Test-MarkdownLink.ps1      ← checks links and anchors
 │   └── Assert-TestCount.ps1       ← fails the test job when nothing was tested
 ├── tests/
@@ -63,11 +75,16 @@ out of sync with reality.
 │   └── Assert-TestCount.Tests.ps1   ← holds that guard to what it claims
 └── docs/
     ├── index.md                   ← overview of all sources
-    └── <short-name>/
+    ├── <short-name>/               ← static source
+    │   ├── README.md              ← 1. provenance
+    │   ├── <original>.pdf         ← 2. local copy
+    │   ├── <short-name>.md        ← 3. reverse-engineered source
+    │   └── kilde.psd1             ← recipe (URL, checksum, rules)
+    └── <law-name>/                 ← law text (Opphav.Kilde = 'lovdata-api')
         ├── README.md              ← 1. provenance
-        ├── <original>.pdf         ← 2. local copy
-        ├── <short-name>.md        ← 3. reverse-engineered source
-        └── kilde.psd1             ← recipe (URL, checksum, rules)
+        ├── <law-name>.xml          ← 2. local snapshot of the API response
+        ├── <law-name>.md          ← 3. reverse-engineered source
+        └── kilde.psd1             ← recipe (LovId, dataset, checksums)
 ```
 
 ## Copyright
@@ -107,9 +124,26 @@ The tooling lives in [`scripts/`](scripts/) and is shared by all sources.
 ./scripts/Update-Source.ps1 -Frakoblet
 ```
 
-The script exits with an error if the local copy does not match its recorded
-checksum, or if the markdown file is not identical to what the conversion
-produces. That makes it safe to run as a check.
+Law texts are verified with a separate script, since they have no fixed file
+to download — see **How a source is built** above:
+
+```powershell
+# Verify every law text against Lovdata's API and against the checked-in markdown
+./scripts/Update-Lovtekst.ps1
+
+# Regenerate the markdown for one law
+./scripts/Update-Lovtekst.ps1 veglova -Skriv
+
+# Take in a new snapshot from Lovdata (after ajourføring)
+./scripts/Update-Lovtekst.ps1 veglova -GodtaNyVersjon -Skriv
+
+# Verify without network access (against the checked-in snapshot)
+./scripts/Update-Lovtekst.ps1 -Frakoblet
+```
+
+Both scripts exit with an error if the local copy does not match its
+recorded checksum, or if the markdown file is not identical to what the
+conversion produces. That makes it safe to run as a check.
 
 It says nothing, however, about whether the links inside the markdown file
 work. That is a separate check:
@@ -130,7 +164,7 @@ looks exactly like one that worked:
 Invoke-Pester -Path ./tests
 ```
 
-All three checks run on every pull request; see
+All four checks run on every pull request; see
 [the workflow](.github/workflows/verify-sources.yml).
 
 Requirements: PowerShell 7, Python 3.9+, and `pdfplumber`

@@ -1,12 +1,14 @@
 name: Verify sources
 
-# Three checks, and they answer different questions. One measures that a source
-# still matches the original the publisher put out. One measures that the links
-# inside it lead somewhere. A source can pass the first and fail the second: a
-# generated table of contents can reproduce every word correctly and still point
-# at nothing. The third measures that the second can still tell the difference,
-# because a check reporting success over nothing looks exactly like one that
-# worked.
+# Four checks, and they answer different questions. One measures that a
+# static source still matches the original the publisher put out. Another
+# measures the same thing for the law texts, which have no static original to
+# match against — only the snapshot checked in here. The third measures that
+# the links inside a source lead somewhere. A source can pass all three and
+# still fail: a generated table of contents can reproduce every word
+# correctly and still point at nothing, and a check reporting success over
+# nothing looks exactly like one that worked — the fourth proves the link
+# check can still tell the difference.
 
 on:
   pull_request:
@@ -47,6 +49,26 @@ jobs:
         shell: pwsh
         run: pwsh -NoProfile -File 'scripts/Update-Source.ps1' -Frakoblet
 
+  lovtekster:
+    name: Lovtekster match Lovdata
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # No Python toolchain here: the law texts convert from XML that is
+      # already semantic, so there is no PDF-conversion step to install for.
+      # Offline for the same reason as the job above — Lovdata ajourfører the
+      # dataset every night, and that should not turn an untouched pull
+      # request red.
+      - name: Check against the checked-in snapshot and the conversion
+        shell: pwsh
+        run: pwsh -NoProfile -File 'scripts/Update-Lovtekst.ps1' -Frakoblet
+
   links:
     name: Links and anchors resolve
     runs-on: ubuntu-24.04
@@ -63,7 +85,7 @@ jobs:
         shell: pwsh
         run: pwsh -NoProfile -File 'scripts/Test-MarkdownLink.ps1'
 
-  # Its own job, so the name of the red check says which of the three failed.
+  # Its own job, so the name of the red check says which of the four failed.
   tests:
     name: The link check can still fail
     runs-on: ubuntu-24.04
