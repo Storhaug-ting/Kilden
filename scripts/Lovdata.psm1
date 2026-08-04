@@ -28,11 +28,11 @@
     bruksbegrensninger», mot at Lovdata krediteres som kilde. Hver genererte
     fil inneholder derfor en kildehenvisning til Lovdata.
 
-    Denne modulen er en trimmet port av kilder/Lovdata.psm1 i S62-repoet
-    (Veiforeningen/scripts/kilder/Lovdata.psm1). Funksjoner for å søke opp en
-    lov på navn (Get-LovdataDatasettliste, Get-LovdataIndeks,
-    Find-LovdataLov) er ikke tatt med her, siden hver kilde i Kilden allerede
-    har lov-id-en sin i kilde.psd1 og ikke trenger søk.
+    Denne modulen er en trimmet versjon med færre funksjoner enn en full
+    Lovdata-klient. Funksjoner for å søke opp en lov på navn
+    (Get-LovdataDatasettliste, Get-LovdataIndeks, Find-LovdataLov) er ikke
+    tatt med her, siden hver kilde i Kilden allerede har lov-id-en sin i
+    kilde.psd1 og ikke trenger søk.
 #>
 
 Set-StrictMode -Version Latest

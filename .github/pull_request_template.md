@@ -48,7 +48,6 @@ One bullet per issue, fully qualified so the link works from anywhere.
 Use a closing keyword when this pull request finishes the issue.
 
 - Fixes Storhaug-ting/Kilden#1
-- Storhaug-ting/S62#2
 -->
 
 </details>
