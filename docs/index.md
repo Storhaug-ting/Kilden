@@ -45,5 +45,5 @@ uten vern etter åndsverklova § 14, se [README.md](../README.md#copyright).
 ## Ikke tatt inn
 
 Materiale fra private aktører – blant annet Huseiernes standardvedtekter og
-artiklene fra privatvei.no i S62 – tas **ikke** inn her. Se **Opphavsrett** i
+artiklene fra privatvei.no – tas **ikke** inn her. Se **Opphavsrett** i
 [README.md](../README.md).
