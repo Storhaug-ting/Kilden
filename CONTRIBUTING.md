@@ -39,6 +39,11 @@ Only material that may lawfully be reproduced goes in, because the repository is
 Read [Copyright](README.md#copyright) in the README first — it states which sources are
 free under Norwegian law and which are kept out.
 
+If another Storhaug-ting repository needs a source that is not here yet — a law, a guide,
+any published document — it is added here first, in its own pull request, and then linked
+to. It is never copied, generated, or kept locally in the consuming repository; that would
+duplicate the checksum and verification this repository already provides.
+
 ## Adding a source
 
 1. Confirm the material may lawfully be reproduced here.
