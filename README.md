@@ -16,13 +16,6 @@ file, a machine-generated markdown version that can be diffed and linked into,
 and a `README.md` recording its provenance. See [docs/index.md](docs/index.md)
 for the list of sources that live here.
 
-## What belongs here — and what doesn't
-
-| | |
-|---|---|
-| **Belongs here** | External material published by others: guides, statutes, regulations, standard documents, official reports. |
-| **Doesn't belong here** | Anything that is our own or tied to a single case: bylaws, membership lists, meeting minutes, case documents, correspondence, calculations. That lives in the project repository it concerns. |
-
 A source has to be verifiable against the publisher's original. Mixing in our
 own documents removes that possibility. Project repos read from here and never
 write to it.
@@ -35,8 +28,3 @@ Norwegian law makes the most important sources free — see
 from private actors is not taken in unless the license expressly permits
 redistribution. Each source's `README.md` states the publisher and the basis
 on which it may live here; rights to the content belong to the publisher.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how a source is added or updated,
-and how a change is checked.
