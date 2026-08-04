@@ -1,116 +1,118 @@
 # Kilden
 
-**Kodifiserte representasjoner av eksterne kilder.**
+**Codified representations of external sources.**
 
-Dette repoet inneholder materiale vi **ikke eier selv** – veiledere, lovtekster,
-standarddokumenter og annet som andre har utgitt, og som vi bygger argumenter på.
-Poenget er å kunne svare på tre spørsmål når som helst, uten å måtte lete på nett
-igjen:
+This repository holds material **we do not own** — guides, statutes, standard
+documents, and other things someone else has published, that we build arguments
+on. The point is to be able to answer three questions at any time, without
+having to search the web again:
 
-1. Hvor kommer dette fra?
-2. Hvordan så det ut da vi hentet det?
-3. Har det endret seg siden?
+1. Where does this come from?
+2. What did it look like when we retrieved it?
+3. Has it changed since?
 
-Se [docs/index.md](docs/index.md) for hva som ligger her.
+See [docs/index.md](docs/index.md) for what lives here.
 
-## Hva som hører hjemme her – og hva som ikke gjør det
+## What belongs here — and what doesn't
 
 | | |
 |---|---|
-| **Hører hjemme her** | Eksternt materiale utgitt av andre: veiledere, lovtekster, forskrifter, standarddokumenter, offentlige utredninger. |
-| **Hører ikke hjemme her** | Alt som er vårt eget eller knyttet til én enkelt sak: vedtekter, medlemslister, møtereferater, saksdokumenter, korrespondanse, beregninger. Det ligger i prosjektrepoet det gjelder. |
+| **Belongs here** | External material published by others: guides, statutes, regulations, standard documents, official reports. |
+| **Doesn't belong here** | Anything that is our own or tied to a single case: bylaws, membership lists, meeting minutes, case documents, correspondence, calculations. That lives in the project repository it concerns. |
 
-Skillet er ikke en formalitet. En kilde skal kunne etterprøves mot originalen hos
-utgiveren. Blandes våre egne dokumenter inn, forsvinner den muligheten.
+The split is not a formality. A source has to be verifiable against the
+publisher's original. Mixing in our own documents removes that possibility.
 
-## Hvorfor et eget repo
+## Why a separate repo
 
-Kildene lå tidligere i en `sources/`-mappe i prosjektrepoet. Da måtte det
-håndheves med en egen kontroll at én og samme endring ikke rørte kildeinnhold og
-prosjektinnhold på én gang. Som eget repo følger det av seg selv: en endring i en
-kilde *er* en egen pull request, i et eget repo, med egen historikk.
+The sources used to live in a `sources/` folder in the project repo. That
+required a separate check to enforce that one change never touched both
+source content and project content at once. As its own repo, it follows
+naturally: a change to a source *is* its own pull request, in its own repo,
+with its own history.
 
-Prosjektrepoene leser herfra og skriver aldri hit.
+Project repos read from here and never write to it.
 
-## Slik er en kilde bygd opp
+## How a source is built
 
-Alt kildemateriale ligger under [`docs/`](docs/). Hver kilde får sin egen mappe
-der med et kortnavn i små bokstaver, og består av **tre sett filer**:
+All source material lives under [`docs/`](docs/). Each source gets its own
+folder there with a lowercase short name, and consists of **three sets of
+files**:
 
-| # | Fil | Hva det er |
+| # | File | What it is |
 |---|-----|-----------|
-| 1 | `README.md` | **Opphavet.** Hvem har utgitt det, når, med lenke til originalen på nett, sjekksum og dato for når vi hentet det. |
-| 2 | Originalfilen (`*.pdf`, `*.html`, …) | **Den lokale kopien**, byte for byte lik det som lå på nett den dagen den ble hentet. Filnavnet er det samme som i URL-en. |
-| 3 | Markdown-filen (`*.md`) | **Den reverse-engineerte kilden.** En maskingenerert tekstversjon av originalen som kan leses her, lenkes til med anker, og – viktigst – *diffes* når originalen endrer seg. |
+| 1 | `README.md` | **The provenance.** Who published it, when, with a link to the original online, checksum, and the date we retrieved it. |
+| 2 | The original file (`*.pdf`, `*.html`, …) | **The local copy**, byte for byte identical to what was online the day it was retrieved. The file name matches the one in the URL. |
+| 3 | The markdown file (`*.md`) | **The reverse-engineered source.** A machine-generated text version of the original that can be read here, linked to with anchors, and — most importantly — *diffed* when the original changes. |
 
-I tillegg ligger `kilde.psd1` i mappa. Den er oppskriften: URL, forventet
-sjekksum og reglene som styrer konverteringen. Den er det eneste stedet disse
-opplysningene står, slik at README og markdown-filen ikke kan komme i utakt
-med virkeligheten.
+The folder also holds `kilde.psd1`. That is the recipe: URL, expected
+checksum, and the rules that drive the conversion. It is the only place
+these facts are recorded, so the README and the markdown file cannot drift
+out of sync with reality.
 
 ```text
 .
-├── README.md                      ← denne filen
+├── README.md                      ← this file
 ├── scripts/
-│   ├── Update-Source.ps1          ← henter, kontrollerer, konverterer
-│   ├── Convert-PdfToMarkdown.py   ← selve PDF-til-markdown-konverteringen
-│   ├── Test-MarkdownLink.ps1      ← kontrollerer lenker og ankere
+│   ├── Update-Source.ps1          ← fetches, verifies, converts
+│   ├── Convert-PdfToMarkdown.py   ← the actual PDF-to-markdown conversion
+│   ├── Test-MarkdownLink.ps1      ← checks links and anchors
 │   └── Assert-TestCount.ps1       ← fails the test job when nothing was tested
 ├── tests/
 │   ├── Test-MarkdownLink.Tests.ps1  ← holds the link check to what it claims
 │   └── Assert-TestCount.Tests.ps1   ← holds that guard to what it claims
 └── docs/
-    ├── index.md                   ← oversikt over alle kilder
-    └── <kortnavn>/
-        ├── README.md              ← 1. opphav
-        ├── <original>.pdf         ← 2. lokal kopi
-        ├── <kortnavn>.md          ← 3. reverse-engineered kilde
-        └── kilde.psd1             ← oppskrift (URL, sjekksum, regler)
+    ├── index.md                   ← overview of all sources
+    └── <short-name>/
+        ├── README.md              ← 1. provenance
+        ├── <original>.pdf         ← 2. local copy
+        ├── <short-name>.md        ← 3. reverse-engineered source
+        └── kilde.psd1             ← recipe (URL, checksum, rules)
 ```
 
-## Opphavsrett
+## Copyright
 
-Repoet er offentlig. Derfor tas bare materiale inn som lovlig kan gjengis.
+The repo is public. Only material that may lawfully be reproduced goes in.
 
-Norsk rett gjør de viktigste kildene frie: etter
-[åndsverklova § 14](https://lovdata.no/lov/2018-06-15-40/§14) er lover,
-forskrifter og rettsavgjørelser uten vern, og det samme gjelder «forslag,
-utredninger og andre uttalelser som gjelder offentleg myndigheitsutøving» avgitt
-eller utgitt av det offentlige.
+Norwegian law makes the most important sources free: under
+[åndsverklova § 14](https://lovdata.no/lov/2018-06-15-40/§14), statutes,
+regulations, and court decisions carry no copyright, and the same holds for
+"proposals, reports, and other statements concerning the exercise of public
+authority" issued or published by public bodies.
 
-**Materiale fra private aktører – bransjeforeninger, forlag, konsulenter – tas
-ikke inn her**, med mindre lisensen uttrykkelig tillater videredistribusjon.
-Trenger et prosjekt slikt materiale, blir det liggende i det private
-prosjektrepoet til intern bruk.
+**Material from private actors — trade associations, publishers,
+consultants — is not taken in here**, unless the license expressly permits
+redistribution. If a project needs such material, it stays in that project's
+own private repository.
 
-Hver kildes `README.md` oppgir utgiver og hjemmelen for at den kan ligge her.
-Rettighetene til innholdet tilhører utgiveren. Det som er vårt, er konverteringen
-og oppsettet rundt.
+Each source's `README.md` states the publisher and the basis on which it may
+live here. Rights to the content belong to the publisher. What is ours is the
+conversion and the setup around it.
 
-## Bruk
+## Usage
 
-Verktøykjeden ligger i [`scripts/`](scripts/) og deles av alle kilder.
+The tooling lives in [`scripts/`](scripts/) and is shared by all sources.
 
 ```powershell
-# Kontroller alle kilder mot nett og mot innsjekket markdown (endrer ingenting)
+# Verify every source against the web and against the checked-in markdown (changes nothing)
 ./scripts/Update-Source.ps1
 
-# Regenerer markdown for én kilde
+# Regenerate the markdown for one source
 ./scripts/Update-Source.ps1 veileder-bruksordning-for-veg -Skriv
 
-# Ta inn en ny utgave som utgiveren har publisert
+# Take in a new edition the publisher has released
 ./scripts/Update-Source.ps1 veileder-bruksordning-for-veg -GodtaNyVersjon -Skriv
 
-# Kontroller uten nett
+# Verify without network access
 ./scripts/Update-Source.ps1 -Frakoblet
 ```
 
-Skriptet avslutter med feil hvis den lokale kopien ikke stemmer med registrert
-sjekksum, eller hvis markdown-filen ikke er identisk med det konverteringen
-produserer. Det gjør det trygt å kjøre som en kontroll.
+The script exits with an error if the local copy does not match its recorded
+checksum, or if the markdown file is not identical to what the conversion
+produces. That makes it safe to run as a check.
 
-Det sier derimot ingenting om at lenkene i markdown-filen virker. Det er en egen
-kontroll:
+It says nothing, however, about whether the links inside the markdown file
+work. That is a separate check:
 
 ```powershell
 ./scripts/Test-MarkdownLink.ps1
@@ -128,19 +130,19 @@ looks exactly like one that worked:
 Invoke-Pester -Path ./tests
 ```
 
-All three checks run on every pull request, see
-[arbeidsflyten](.github/workflows/verify-sources.yml).
+All three checks run on every pull request; see
+[the workflow](.github/workflows/verify-sources.yml).
 
-Krav: PowerShell 7, Python 3.9+ og `pdfplumber`
+Requirements: PowerShell 7, Python 3.9+, and `pdfplumber`
 (`python -m pip install pdfplumber`), and Pester 6 for the tests.
 
-## Hvorfor markdown og ikke bare originalen?
+## Why markdown, and not just the original?
 
-En PDF kan ikke diffes. Når Domstoladministrasjonen endrer én setning i en
-veileder på 61 sider, viser git bare at en binærfil er byttet ut. Markdown-
-versjonen gjør endringen synlig linje for linje, og lar oss lenke direkte til
-et kapittel eller en paragraf fra våre egne dokumenter.
+A PDF cannot be diffed. When Domstoladministrasjonen changes one sentence in
+a 61-page guide, git shows only that a binary file was swapped out. The
+markdown version makes the change visible line by line, and lets us link
+directly to a chapter or a paragraph from our own documents.
 
-Konverteringen er **deterministisk** – samme original gir alltid nøyaktig
-samme markdown – og kontrolleres ord for ord mot originalen, slik at
-gjengivelsen er etterprøvbart fullstendig.
+The conversion is **deterministic** — the same original always produces
+exactly the same markdown — and is checked word for word against the
+original, so the reproduction is verifiably complete.
