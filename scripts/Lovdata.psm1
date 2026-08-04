@@ -1,21 +1,26 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-    Kildemodul: Lovdata sitt åpne API – gjeldende lover som maskinlesbar XML.
+    Kildemodul: Lovdata sitt åpne API – gjeldende lover og sentrale forskrifter
+    som maskinlesbar XML.
 
 .DESCRIPTION
-    Henter FAKTA – den offisielle, konsoliderte lovteksten – fra Lovdata sitt
-    åpne API, og gjør den om til markdown på et fast, deterministisk format.
-    Modulen tolker ikke innholdet; den speiler kildens struktur (kapittel,
-    paragraf, ledd, liste, endringsnote, fotnote) 1:1.
+    Henter FAKTA – den offisielle, konsoliderte regelverksteksten – fra Lovdata
+    sitt åpne API, og gjør den om til markdown på et fast, deterministisk
+    format. Modulen tolker ikke innholdet; den speiler kildens struktur
+    (kapittel, paragraf, ledd, liste, endringsnote, fotnote) 1:1.
 
-    Kilde:
+    Kilder:
       https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2
+      https://api.lovdata.no/v1/publicData/get/gjeldende-sentrale-forskrifter.tar.bz2
 
-    Datasettet inneholder alle gjeldende norske lover som XML-kompatibel HTML
-    med semantisk struktur (section / legalArticle / legalP / defaultList).
-    Én nedlasting dekker samtlige lover, og Lovdata legger ut nye pakker hver
-    natt.
+    Datasettene inneholder alle gjeldende norske lover, respektive alle
+    gjeldende sentrale forskrifter, som XML-kompatibel HTML med semantisk
+    struktur (section / legalArticle / legalP / defaultList). Begge datasettene
+    bruker samme oppmerking, så konverteringen er den samme; det som skiller
+    dem er filnavn, katalogoppsett og hvilken adresse dokumentet har på
+    lovdata.no. Se $script:Dokumenttyper. Én nedlasting dekker hele datasettet,
+    og Lovdata legger ut nye pakker hver natt.
 
     Determinisme er hele poenget: samme kildefil gir alltid nøyaktig samme
     markdown, byte for byte. Derfor skrives det aldri tidsstempler eller andre
@@ -29,7 +34,7 @@
     fil inneholder derfor en kildehenvisning til Lovdata.
 
     Denne modulen er en trimmet versjon med færre funksjoner enn en full
-    Lovdata-klient. Funksjoner for å søke opp en lov på navn
+    Lovdata-klient. Funksjoner for å søke opp et dokument på navn
     (Get-LovdataDatasettliste, Get-LovdataIndeks, Find-LovdataLov) er ikke
     tatt med her, siden hver kilde i Kilden allerede har lov-id-en sin i
     kilde.psd1 og ikke trenger søk.
@@ -41,6 +46,27 @@ $script:ApiBase = 'https://api.lovdata.no/v1/publicData'
 $script:StandardDatasett = 'gjeldende-lover'
 $script:Headers = @{ 'User-Agent' = 'Kilden-lovtekst-generator' }
 
+# Det som skiller de to datasettene fra hverandre. Oppmerkingen inne i XML-en er
+# den samme, så konverteringen trenger ingen særtilfeller – men filnavnet,
+# løpenummerbredden og adressen dokumentet har på lovdata.no er ulik:
+#
+#   Filprefiks   nl- for lover, sf- for forskrifter.
+#   Nummerbredde Lover har tresifret løpenummer (nl-19630621-023), forskrifter
+#                firesifret (sf-20100326-0488).
+#   Dokumentsti  lover ligger under NL/lov, forskrifter under SF/forskrift.
+$script:Dokumenttyper = @{
+    'gjeldende-lover'                 = @{
+        Filprefiks   = 'nl'
+        Nummerbredde = 3
+        Dokumentsti  = 'NL/lov'
+    }
+    'gjeldende-sentrale-forskrifter'  = @{
+        Filprefiks   = 'sf'
+        Nummerbredde = 4
+        Dokumentsti  = 'SF/forskrift'
+    }
+}
+
 # Tagger som alltid starter en ny markdown-blokk.
 $script:BlokkTagger = @('section', 'article', 'ol', 'ul', 'li', 'footer', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 
@@ -50,6 +76,29 @@ $script:BlokkTagger = @('section', 'article', 'ol', 'ul', 'li', 'footer', 'p', '
 $script:HoppOverMeta = @('table-of-contents', 'title')
 
 #region Datasett
+
+function Get-LovdataDokumenttype {
+    <#
+    .SYNOPSIS
+        Slår opp filnavn- og adressekonvensjonene for et datasett.
+    .DESCRIPTION
+        Se $script:Dokumenttyper. Et ukjent datasett stoppes her, med de kjente
+        navnene i feilmeldingen, framfor å gi et filnavn som ikke finnes.
+    .PARAMETER Datasett
+        Datasettnavn, f.eks. «gjeldende-lover».
+    .OUTPUTS
+        Hashtabell med Filprefiks, Nummerbredde og Dokumentsti.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $Datasett)
+
+    $type = $script:Dokumenttyper[$Datasett]
+    if (-not $type) {
+        $kjente = ($script:Dokumenttyper.Keys | Sort-Object) -join ', '
+        throw "Ukjent datasett: '$Datasett'. Modulen håndterer $kjente."
+    }
+    $type
+}
 
 function Get-LovdataDatasett {
     <#
@@ -70,9 +119,11 @@ function Get-LovdataDatasett {
     .PARAMETER Force
         Last ned på nytt selv om arkivet allerede er hentet.
     .OUTPUTS
-        PSCustomObject med Navn, Url, ArkivSti, XmlKatalog, Sha256 og AntallDokumenter.
+        PSCustomObject med Navn, Url, ArkivSti, XmlKataloger, Sha256 og AntallDokumenter.
     .EXAMPLE
         Get-LovdataDatasett
+    .EXAMPLE
+        Get-LovdataDatasett -Navn gjeldende-sentrale-forskrifter
     #>
     [CmdletBinding()]
     param(
@@ -80,6 +131,8 @@ function Get-LovdataDatasett {
         [string] $CachePath,
         [switch] $Force
     )
+
+    Get-LovdataDokumenttype -Datasett $Navn | Out-Null
 
     if (-not $CachePath) {
         $CachePath = Join-Path ([System.IO.Path]::GetTempPath()) "lovdata-$Navn"
@@ -105,17 +158,19 @@ function Get-LovdataDatasett {
         if ($LASTEXITCODE -ne 0) { throw "Klarte ikke å pakke ut $arkiv (tar ga kode $LASTEXITCODE)." }
     }
 
-    # Arkivet legger dokumentene i en undermappe (nl for lover).
-    $xmlKatalog = Get-ChildItem $utpakket -Directory | Select-Object -First 1 -ExpandProperty FullName
-    if (-not $xmlKatalog) { throw "Fant ingen dokumentkatalog i det utpakkede datasettet ($utpakket)." }
+    # Arkivet legger dokumentene i undermapper. Lovene ligger samlet i én (nl),
+    # mens forskriftene er delt på fire (sf, del, ins, stv) etter hva slags
+    # vedtak de er. Alle må med, ellers finner vi ikke igjen dokumentet.
+    $xmlKataloger = @(Get-ChildItem $utpakket -Directory | Sort-Object Name | Select-Object -ExpandProperty FullName)
+    if (-not $xmlKataloger) { throw "Fant ingen dokumentkatalog i det utpakkede datasettet ($utpakket)." }
 
     [pscustomobject]@{
         Navn             = $Navn
         Url              = $url
         ArkivSti         = $arkiv
-        XmlKatalog       = $xmlKatalog
+        XmlKataloger     = $xmlKataloger
         Sha256           = (Get-FileHash -Path $arkiv -Algorithm SHA256).Hash.ToLowerInvariant()
-        AntallDokumenter = (Get-ChildItem $xmlKatalog -Filter '*.xml' -File).Count
+        AntallDokumenter = @($xmlKataloger | ForEach-Object { Get-ChildItem $_ -Filter '*.xml' -File }).Count
     }
 }
 
@@ -125,19 +180,60 @@ function ConvertTo-LovdataFilnavn {
         Gjør en Lovdata-id om til filnavnet datasettet bruker.
     .DESCRIPTION
         «1965-06-18-6» blir «nl-19650618-006.xml». Lover uten løpenummer
-        («1968-11-29») får 000.
+        («1968-11-29») får 000. Forskriftsdatasettet bruker prefikset sf- og
+        firesifret løpenummer, så «2010-03-26-488» blir «sf-20100326-0488.xml».
     .PARAMETER LovId
         Lovdata-id, f.eks. «1963-06-21-23».
+    .PARAMETER Datasett
+        Datasettet id-en hører til. Standard «gjeldende-lover».
     #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string] $LovId)
+    param(
+        [Parameter(Mandatory)][string] $LovId,
+        [string] $Datasett = $script:StandardDatasett
+    )
+
+    $type = Get-LovdataDokumenttype -Datasett $Datasett
 
     $deler = $LovId -split '-'
     if ($deler.Count -lt 3) { throw "Ugyldig lov-id: '$LovId'. Forventet formatet ÅÅÅÅ-MM-DD[-nr]." }
 
     $dato = '{0:0000}{1:00}{2:00}' -f [int]$deler[0], [int]$deler[1], [int]$deler[2]
     $nummer = if ($deler.Count -ge 4) { [int]$deler[3] } else { 0 }
-    'nl-{0}-{1:000}.xml' -f $dato, $nummer
+    '{0}-{1}-{2}.xml' -f $type.Filprefiks, $dato, ([string]$nummer).PadLeft($type.Nummerbredde, '0')
+}
+
+function Find-LovdataDokument {
+    <#
+    .SYNOPSIS
+        Finner XML-filen til ett dokument i et utpakket datasett.
+    .DESCRIPTION
+        Leter i alle dokumentkatalogene i datasettet, siden forskriftene er delt
+        på flere. Returnerer $null hvis dokumentet ikke finnes, slik at den som
+        kaller kan si hvilken kilde det gjaldt.
+    .PARAMETER Datasett
+        Resultatet fra Get-LovdataDatasett.
+    .PARAMETER LovId
+        Lovdata-id på formen «2010-03-26-488».
+    .OUTPUTS
+        PSCustomObject med Filnavn og Sti, eller $null.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][psobject] $Datasett,
+        [Parameter(Mandatory)][string] $LovId
+    )
+
+    $filnavn = ConvertTo-LovdataFilnavn -LovId $LovId -Datasett $Datasett.Navn
+
+    foreach ($katalog in $Datasett.XmlKataloger) {
+        $sti = Join-Path $katalog $filnavn
+        if (Test-Path -LiteralPath $sti) {
+            return [pscustomobject]@{ Filnavn = $filnavn; Sti = $sti }
+        }
+    }
+
+    $null
 }
 
 #endregion
@@ -556,13 +652,16 @@ function ConvertTo-YamlVerdi {
 function Get-Frontmatter {
     <#
     .SYNOPSIS
-        Bygger YAML-frontmatter for en lov.
+        Bygger YAML-frontmatter for en lov eller forskrift.
     .PARAMETER Root
-        Rot-elementet i lovfilen.
+        Rot-elementet i kildefilen.
     .PARAMETER LovId
         Lovdata-id.
     .PARAMETER Tittel
-        Lovens tittel.
+        Dokumentets tittel.
+    .PARAMETER Datasett
+        Datasettet dokumentet kommer fra. Bestemmer adressen i «kilde» og
+        «kildedatasett». Standard «gjeldende-lover».
     .OUTPUTS
         [string[]] – linjene i frontmatter-blokken, inkludert '---' i begge ender.
     #>
@@ -570,8 +669,11 @@ function Get-Frontmatter {
     param(
         [Parameter(Mandatory)][System.Xml.XmlNode] $Root,
         [Parameter(Mandatory)][string] $LovId,
-        [Parameter(Mandatory)][string] $Tittel
+        [Parameter(Mandatory)][string] $Tittel,
+        [string] $Datasett = $script:StandardDatasett
     )
+
+    $type = Get-LovdataDokumenttype -Datasett $Datasett
 
     $linjer = [System.Collections.Generic.List[string]]::new()
     $linjer.Add('---')
@@ -587,8 +689,8 @@ function Get-Frontmatter {
         }
     }
 
-    $linjer.Add('kilde: ' + (ConvertTo-YamlVerdi "https://lovdata.no/dokument/NL/lov/$LovId"))
-    $linjer.Add('kildedatasett: ' + (ConvertTo-YamlVerdi "$script:ApiBase/get/$script:StandardDatasett.tar.bz2"))
+    $linjer.Add('kilde: ' + (ConvertTo-YamlVerdi "https://lovdata.no/dokument/$($type.Dokumentsti)/$LovId"))
+    $linjer.Add('kildedatasett: ' + (ConvertTo-YamlVerdi "$script:ApiBase/get/$Datasett.tar.bz2"))
     $linjer.Add('generertAv: ' + (ConvertTo-YamlVerdi 'scripts/Update-Lovtekst.ps1'))
     $linjer.Add('---')
     $linjer
@@ -601,18 +703,21 @@ function Get-Frontmatter {
 function ConvertFrom-LovdataXml {
     <#
     .SYNOPSIS
-        Gjør en lovfil fra Lovdata-datasettet om til deterministisk markdown.
+        Gjør en fil fra et Lovdata-datasett om til deterministisk markdown.
     .PARAMETER Path
         Sti til XML-filen, f.eks. .../nl/nl-19650618-006.xml.
     .PARAMETER LovId
         Lovdata-id, brukes til kildehenvisningen.
+    .PARAMETER Datasett
+        Datasettet filen kommer fra. Standard «gjeldende-lover».
     .OUTPUTS
         [string] – hele markdown-dokumentet, LF-linjeskift, ett avsluttende linjeskift.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string] $Path,
-        [Parameter(Mandatory)][string] $LovId
+        [Parameter(Mandatory)][string] $LovId,
+        [string] $Datasett = $script:StandardDatasett
     )
 
     $rot = ConvertTo-LovdataXml -Path $Path
@@ -625,7 +730,7 @@ function ConvertFrom-LovdataXml {
     $tittel = Format-Avsnitt (ConvertTo-InlineMarkdown -Node $h1)
 
     $linjer = [System.Collections.Generic.List[string]]::new()
-    foreach ($l in Get-Frontmatter -Root $rot -LovId $LovId -Tittel $tittel) { $linjer.Add($l) }
+    foreach ($l in Get-Frontmatter -Root $rot -LovId $LovId -Tittel $tittel -Datasett $Datasett) { $linjer.Add($l) }
 
     $linjer.Add('')
     $linjer.Add("# $tittel")
@@ -648,7 +753,7 @@ function ConvertFrom-LovdataXml {
 function Get-LovdataMarkdown {
     <#
     .SYNOPSIS
-        Henter én lov fra et datasett og returnerer markdown + provenans.
+        Henter ett dokument fra et datasett og returnerer markdown + provenans.
     .PARAMETER LovId
         Lovdata-id på formen «1963-06-21-23».
     .PARAMETER Datasett
@@ -661,6 +766,9 @@ function Get-LovdataMarkdown {
         # Gjenbruk datasettet når du henter flere lover
         $d = Get-LovdataDatasett
         '1963-06-21-23','1966-12-09-1' | ForEach-Object { Get-LovdataMarkdown -LovId $_ -Datasett $d }
+    .EXAMPLE
+        # Byggesaksforskriften ligger i forskriftsdatasettet
+        Get-LovdataMarkdown -LovId 2010-03-26-488 -Datasett (Get-LovdataDatasett -Navn gjeldende-sentrale-forskrifter)
     #>
     [CmdletBinding()]
     param(
@@ -670,22 +778,23 @@ function Get-LovdataMarkdown {
 
     if (-not $Datasett) { $Datasett = Get-LovdataDatasett }
 
-    $filnavn = ConvertTo-LovdataFilnavn -LovId $LovId
-    $sti = Join-Path $Datasett.XmlKatalog $filnavn
-    if (-not (Test-Path $sti)) {
-        throw "Fant ikke $filnavn i datasettet. Er $LovId en gjeldende lov?"
+    $dokument = Find-LovdataDokument -Datasett $Datasett -LovId $LovId
+    if (-not $dokument) {
+        $filnavn = ConvertTo-LovdataFilnavn -LovId $LovId -Datasett $Datasett.Navn
+        throw "Fant ikke $filnavn i datasettet $($Datasett.Navn). Er $LovId fortsatt gjeldende?"
     }
 
     [pscustomobject]@{
         LovId    = $LovId
-        Fil      = $filnavn
-        Sti      = $sti
-        Sha256   = (Get-FileHash -Path $sti -Algorithm SHA256).Hash.ToLowerInvariant()
-        Markdown = ConvertFrom-LovdataXml -Path $sti -LovId $LovId
+        Fil      = $dokument.Filnavn
+        Sti      = $dokument.Sti
+        Sha256   = (Get-FileHash -Path $dokument.Sti -Algorithm SHA256).Hash.ToLowerInvariant()
+        Markdown = ConvertFrom-LovdataXml -Path $dokument.Sti -LovId $LovId -Datasett $Datasett.Navn
     }
 }
 
 #endregion
 
-Export-ModuleMember -Function Get-LovdataDatasett, ConvertTo-LovdataFilnavn,
-ConvertTo-LovdataXml, ConvertFrom-LovdataXml, Get-LovdataMarkdown
+Export-ModuleMember -Function Get-LovdataDokumenttype, Get-LovdataDatasett,
+ConvertTo-LovdataFilnavn, Find-LovdataDokument, ConvertTo-LovdataXml,
+ConvertFrom-LovdataXml, Get-LovdataMarkdown
